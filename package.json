@@ -1,6 +1,6 @@
 {
   "name": "sided-db",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Minimal wrapper of MongoDB",
   "main": "dist/index.js",
   "scripts": {
