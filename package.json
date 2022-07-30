@@ -17,6 +17,7 @@
   "type": "module",
   "dependencies": {
     "@types/node": "^18.6.1",
-    "mongodb": "^4.8.0"
+    "mongodb": "^4.8.0",
+    "mongoose": "^6.5.0"
   }
 }
