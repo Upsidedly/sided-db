@@ -1,5 +1,4 @@
 import { Collection, MongoClient, WithId, Document } from 'mongodb'
-import { InferSchemaType } from 'mongoose'
 
 export type BSONValueRaw = string | number | boolean | null
 export type BSONValue =
@@ -7,36 +6,20 @@ export type BSONValue =
   | Array<BSONValueRaw>
   | { [key: string]: BSONValueRaw }
 
-export const DataType = {
-  String: '',
-  Number: 9 * 9,
-  Boolean: 9 === 9,
-  Null: null,
-  StringArray: ['h'],
-  NumberArray: [9],
-  BooleanArray: [true],
-}
-
-export class Module<T extends { [key: string]: BSONValue }> {
-  private client: MongoClient
+export class Module<T extends { [key: string]: BSONValue | undefined }> {
   private name: string
   private collection: Collection
-  private schema!: T
 
   public readonly moduleName: WithId<Document>
 
   constructor(
-    client: MongoClient,
     module: WithId<Document>,
     collection: Collection
   ) {
-    this.client = client
     this.moduleName = module
     this.name = module.module_name
     this.collection = collection
   }
-
-  public setSchema(schema: T) {}
 
   public async set(key: string, value: any) {
     return await this.collection.updateOne(
@@ -191,7 +174,6 @@ export class User {
     const module = await this.collection.findOne({ module_name })
     if (!module) this.collection.insertOne({ module_name })
     return new Module(
-      this.client,
       (await this.collection.findOne({ module_name }))!,
       this.collection
     )
