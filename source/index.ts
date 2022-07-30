@@ -6,22 +6,19 @@ export type BSONValue =
   | Array<BSONValueRaw>
   | { [key: string]: BSONValueRaw }
 
-export class Module<T extends { [key: string]: BSONValue | undefined }> {
+export class Module<T extends { [key: string]: BSONValue }> {
   private name: string
   private collection: Collection
 
   public readonly moduleName: WithId<Document>
 
-  constructor(
-    module: WithId<Document>,
-    collection: Collection
-  ) {
+  constructor(module: WithId<Document>, collection: Collection) {
     this.moduleName = module
     this.name = module.module_name
     this.collection = collection
   }
 
-  public async set(key: string, value: any) {
+  public async set(key: string, value: BSONValue) {
     return await this.collection.updateOne(
       { module_name: this.name },
       { $set: { [key]: value } }
@@ -149,6 +146,36 @@ export class Module<T extends { [key: string]: BSONValue | undefined }> {
     delete (res as { [key: string]: any })['_id']
     return res as unknown as T
   }
+
+  public async increment(key: string, value: number) {
+    const res = (await this.collection.findOne({ module_name: this.name }))!
+    const num =
+      (typeof res[key] === 'number' ? (res[key] as number) : 0) + value
+    return await this.collection.updateOne(
+      { module_name: this.name },
+      { $set: { [key]: num } }
+    )
+  }
+
+  public async at(index: number): Promise<BSONValue | undefined> {
+    const res = await this.collection.findOne({ module_name: this.name })
+    delete (res as { [key: string]: any })['_id']
+    return Object.keys(res!).length - 1 >= index
+      ? undefined
+      : Object.values(res!).at(index)
+  }
+
+  public async hasAll(...keys: string[]): Promise<boolean> {
+    const res = await this.collection.findOne({ module_name: this.name })
+    delete (res as { [key: string]: any })['_id']
+    return keys.every((key) => res![key] !== undefined)
+  }
+
+  public async hasAny(...keys: string[]): Promise<boolean> {
+    const res = await this.collection.findOne({ module_name: this.name })
+    delete (res as { [key: string]: any })['_id']
+    return keys.some((key) => res![key] !== undefined)
+  }
 }
 
 export class User {
@@ -170,7 +197,9 @@ export class User {
     return await this.collection.find({}).toArray()
   }
 
-  async module(module_name: string): Promise<Module<{ [key: string]: BSONValue | undefined }>> {
+  async module(
+    module_name: string
+  ): Promise<Module<{ [key: string]: BSONValue }>> {
     const module = await this.collection.findOne({ module_name })
     if (!module) this.collection.insertOne({ module_name })
     return new Module(
