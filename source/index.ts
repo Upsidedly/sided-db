@@ -170,7 +170,7 @@ export class User {
     return await this.collection.find({}).toArray()
   }
 
-  async module(module_name: string): Promise<Module<{}>> {
+  async module(module_name: string): Promise<Module<{ [key: string]: BSONValue | undefined }>> {
     const module = await this.collection.findOne({ module_name })
     if (!module) this.collection.insertOne({ module_name })
     return new Module(
