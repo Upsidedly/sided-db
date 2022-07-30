@@ -1,0 +1,22 @@
+{
+  "name": "sided-db",
+  "version": "1.0.0",
+  "description": "Minimal wrapper of MongoDB",
+  "main": "dist/index.js",
+  "scripts": {
+    "watch": "tsc -w",
+    "test": "node ."
+  },
+  "keywords": [
+    "db",
+    "database",
+    "upsided"
+  ],
+  "author": "upsided",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "dependencies": {
+    "@types/node": "^18.6.1",
+    "mongodb": "^4.8.0"
+  }
+}
