@@ -236,7 +236,7 @@ export class UserDB {
     this.connected = true
   }
 
-  getPlayer(userid: string) {
+  getUser(userid: string) {
     if (!this.connected) {
       throw new Error('Not connected')
     }
