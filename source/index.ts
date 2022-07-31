@@ -18,11 +18,12 @@ export class Module<T extends { [key: string]: BSONValue }> {
     this.collection = collection
   }
 
-  public async set(key: string, value: BSONValue) {
-    return await this.collection.updateOne(
+  public async set<T extends BSONValue>(key: string, value: T): Promise<T> {
+    await this.collection.updateOne(
       { module_name: this.name },
       { $set: { [key]: value } }
     )
+    return value
   }
 
   public async get(key: keyof T): Promise<BSONValue | undefined> {
